@@ -15,7 +15,7 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class ControllerRest(host: String, port: Int)(implicit val materializer: ActorMaterializer, db: Database, execContext: ExecutionContext) extends Actor with ActorLogging {
+class RestActor(host: String, port: Int)(implicit val materializer: ActorMaterializer, db: Database, execContext: ExecutionContext) extends Actor with ActorLogging {
 
   implicit private val system = context.system
   implicit private val executionContext = system.dispatcher
@@ -92,6 +92,6 @@ class ControllerRest(host: String, port: Int)(implicit val materializer: ActorMa
 
 }
 
-object ControllerRest {
-  def props()(host: String, port: Int)(implicit materializer: ActorMaterializer, db: Database, execContext: ExecutionContext) = Props(classOf[ControllerRest], host, port, materializer, db, execContext)
+object RestActor {
+  def props()(host: String, port: Int)(implicit materializer: ActorMaterializer, db: Database, execContext: ExecutionContext) = Props(classOf[RestActor], host, port, materializer, db, execContext)
 }

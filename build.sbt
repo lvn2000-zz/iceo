@@ -31,7 +31,7 @@ lazy val commonDeps = Seq(
   akkaHttp.http, akkaHttp.sprayJSon, akkaHttp.actorTyped,
   akkaHttp.stream, akkaHttp.logBack,
   slick.slick, slick.nop, slick.typeSafe, slick.postgreSql,
-  kafka_clients,
+  kafkaClient,
   swagger.sw_annot, swagger.jsr
 )
 

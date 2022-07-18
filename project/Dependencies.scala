@@ -25,7 +25,7 @@ object Dependencies {
     val postgreSql = "org.postgresql" % "postgresql" % "42.4.0"
   }
 
-  val kafka_clients = "org.apache.kafka" % "kafka-clients" % "3.2.0"
+  val kafkaClient = "org.apache.kafka" % "kafka-clients" % "3.2.0"
 
   object swagger {
     val sw_annot = "io.swagger.core.v3" % "swagger-annotations" % "2.2.1"

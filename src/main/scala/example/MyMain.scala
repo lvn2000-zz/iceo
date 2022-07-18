@@ -4,10 +4,11 @@ import akka.actor.{ActorSystem, PoisonPill}
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import example.actor.ControllerRest
+import example.actor.{DBManagerActor, KafkaActor, RestActor}
 import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcBackend.Database
 
+import java.util.Properties
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
@@ -22,7 +23,7 @@ object MyMain extends App {
 
   implicit val materializer = ActorMaterializer()
 
-  val config = ConfigFactory.parseResources("defaults.conf");
+  val config = ConfigFactory.parseResources("defaults.conf")
 
   //used in DBWrapper
   implicit lazy val fixedThreadPoolExecutionContext: ExecutionContext = {
@@ -30,21 +31,32 @@ object MyMain extends App {
     ExecutionContext.fromExecutor(fixedThreadPool)
   }
 
-  val restInterface = config.getString("endpoint.interface")
-  val restPort = config.getInt("endpoint.port")
+  val restInterface = config.getString("rest.host")
+  val restPort = config.getInt("rest.port")
 
   implicit lazy val dbSlick: Database = Database.forConfig(path = "db.default", config = config)
 
-  val rest = system.actorOf(ControllerRest.props()(restInterface, restPort), "rest-controller")
+  val kafkaProps:Properties = new Properties()
 
-  //val comments = Await.result(dao.getCommets, Duration.Inf )
+  kafkaProps.put("bootstrap.servers", config.getString("kafka.server"))
+  kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+  kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+  kafkaProps.put("acks","all")
 
+  val kafkaTopic = config.getString("kafka.topic")
+
+  val rest = system.actorOf(RestActor.props()(restInterface, restPort), "rest-actor")
+  val kafka = system.actorOf(KafkaActor.props()(kafkaProps, kafkaTopic), "kafka-actor")
+  val dbManager = system.actorOf(DBManagerActor.props(), "dbmanager-actor")
 
   log.info("Start")
 
   sys.addShutdownHook({
     log.info("Finish")
     rest ! PoisonPill
+    kafka ! PoisonPill
+    dbManager ! PoisonPill
+    
     dbSlick.shutdown
     system.terminate
   })
