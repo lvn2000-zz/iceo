@@ -6,8 +6,7 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import example.actor.{DBManagerActor, KafkaActor, RestActor}
 import org.slf4j.LoggerFactory
-import slick.jdbc.JdbcBackend.Database
-
+import slick.jdbc.PostgresProfile.api._
 import java.util.Properties
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.concurrent.ExecutionContext

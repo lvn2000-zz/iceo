@@ -8,7 +8,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import example.dao.{DaoComment, DaoPost, DaoUser}
 import example.model.Formatter._
-import slick.jdbc.JdbcBackend.Database
+import slick.jdbc.PostgresProfile.api._
 import spray.json.enrichAny
 
 import scala.concurrent.duration.DurationInt

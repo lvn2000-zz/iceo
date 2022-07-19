@@ -6,8 +6,8 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import example.dao.{DaoComment, DaoPost, DaoUser}
 import example.model._
-import slick.jdbc.JdbcBackend.Database
-
+//import slick.jdbc.JdbcBackend.Database
+import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,7 +46,6 @@ class DBManagerActor(implicit val materializer: ActorMaterializer, db: Database,
       }
       res pipeTo sender()
     case d: Delete =>
-
       val res = d.className match {
         case `usrNameClass` => daoUser.delete(d.id).map(cnt => ResultDBManager(countRecord = Some(cnt)))
         case `postNameClass` => daoPost.delete(d.id).map(cnt => ResultDBManager(countRecord = Some(cnt)))
@@ -55,7 +54,6 @@ class DBManagerActor(implicit val materializer: ActorMaterializer, db: Database,
       }
       res pipeTo sender()
     case f: FindOne =>
-      val userClassName = User.getClass.getName
       val res = f.className match {
         case `usrNameClass` => daoUser.find(f.id).map(m => ResultDBManager(model = m))
         case `postNameClass` => daoPost.find(f.id).map(m => ResultDBManager(model = m))
@@ -64,7 +62,7 @@ class DBManagerActor(implicit val materializer: ActorMaterializer, db: Database,
       }
       res pipeTo sender()
 
-    case _ =>
+    case _ => ResultDBManager(message = Some("Unknown message"))
   }
 
 }
