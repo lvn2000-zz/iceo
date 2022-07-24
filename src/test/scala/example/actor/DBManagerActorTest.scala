@@ -9,7 +9,6 @@ import org.scalatest.matchers.should.Matchers
 import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
-
 import scala.concurrent.Await
 
 class DBManagerActorTest extends Suites with Matchers with TestInit {
@@ -21,7 +20,6 @@ class DBManagerActorTest extends Suites with Matchers with TestInit {
   val testEmail = "test@email.com"
 
   val nameUserClass = User.getClass.getName
-
 
   lazy val usersTblQ = TableQuery[UsersTable]
 
@@ -36,7 +34,6 @@ class DBManagerActorTest extends Suites with Matchers with TestInit {
     val result = Await.result(dbManager ? FindOne(testUserModel.id, nameUserClass), timeToWait)
     assert(result.isInstanceOf[ResultDBManager] && result.asInstanceOf[ResultDBManager] == ResultDBManager(None, Some(testUserModel), None))
   }
-
 
   def testInsert(): Unit = {
     val result = Await.result(dbManager ? Insert(testUserModel), timeToWait)
@@ -68,6 +65,5 @@ class DBManagerActorTest extends Suites with Matchers with TestInit {
     TestKit.shutdownActorSystem(system)
     systemTest.shutdown()
   }
-
 
 }

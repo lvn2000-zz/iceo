@@ -5,9 +5,9 @@ object Dependencies {
   lazy val test = "org.scalatest" %% "scalatest" % "3.2.10" % "test->compile"
 
   object akkaHttp {
-    val version = "10.2.7"
+    val version = "10.2.9"
     val logbackVersion = "1.2.10"
-    val akkaStreamVersion = "2.6.18"
+    val akkaStreamVersion = "2.6.19"
     lazy val http = "com.typesafe.akka" %% "akka-http" % version
     lazy val sprayJSon = "com.typesafe.akka" %% "akka-http-spray-json" % version
     lazy val logBack = "ch.qos.logback" % "logback-classic" % logbackVersion
@@ -28,8 +28,12 @@ object Dependencies {
   val kafkaClient = "org.apache.kafka" % "kafka-clients" % "3.2.0"
 
   object swagger {
-    val sw_annot = "io.swagger.core.v3" % "swagger-annotations" % "2.2.1"
-    val jsr = "javax.ws.rs" % "jsr311-api" % "1.1.1"
+    val version = "2.8.0"
+    val akka_http = "com.github.swagger-akka-http" %% "swagger-akka-http" % version
+    val scala_module = "com.github.swagger-akka-http" %% "swagger-scala-module" % "2.6.0"
+    val rs_api = "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0"
+    val jaxrs2_jakarta = "io.swagger.core.v3" % "swagger-jaxrs2-jakarta" % "2.2.0"
   }
+
 }
 

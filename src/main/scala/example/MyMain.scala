@@ -45,15 +45,15 @@ object MyMain extends App {
   val kafkaTopic = config.getString("kafka.topic")
 
   val rest = system.actorOf(RestActor.props()(restInterface, restPort), "rest-actor")
-  val kafka = system.actorOf(KafkaActor.props()(kafkaProps, kafkaTopic), "kafka-actor")
+ //TODO need to uncomment on finishing debug val kafka = system.actorOf(KafkaActor.props()(kafkaProps, kafkaTopic), "kafka-actor")
   val dbManager = system.actorOf(DBManagerActor.props(), "dbmanager-actor")
 
   log.info("Start")
 
   sys.addShutdownHook({
     log.info("Finish")
-    rest ! PoisonPill
-    kafka ! PoisonPill
+    //rest ! PoisonPill
+    //kafka ! PoisonPill
     dbManager ! PoisonPill
     
     dbSlick.shutdown
