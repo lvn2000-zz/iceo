@@ -56,8 +56,9 @@ class RestActor(host: String, port: Int)(implicit val materializer: ActorMateria
   }
 
   @GET
+  @Path("users/limit/{limit}/offset/{offset}")
   @Produces(Array(MediaType.APPLICATION_JSON))
-  @Operation(summary = "Return list of users", description = "Return list of all users. Example of url  http://0.0.0.0:8009/posts/id_user/1/limit/5/offset/1",
+  @Operation(summary = "Return list of users", description = "Return list of all users. Example of url http://0.0.0.0:8009/users/limit/5/offset/1",
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Users response",
         content = Array(new Content(schema = new Schema(implementation = classOf[User])))),
@@ -82,8 +83,9 @@ class RestActor(host: String, port: Int)(implicit val materializer: ActorMateria
   }
 
   @GET
+  @Path("posts/id_user/{user_id}/limit/{limit}/offset/{offset}")
   @Produces(Array(MediaType.APPLICATION_JSON))
-  @Operation(summary = "Return list of posts", description = "Return list of posts for user (using id of user). Example of url  http://0.0.0.0:8009/users/limit/5/offset/1",
+  @Operation(summary = "Return list of posts", description = "Return list of posts for user (using id of user). Example of url http://0.0.0.0:8009/posts/id_user/1/limit/5/offset/1",
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Posts response",
         content = Array(new Content(schema = new Schema(implementation = classOf[Post])))),
@@ -108,6 +110,7 @@ class RestActor(host: String, port: Int)(implicit val materializer: ActorMateria
   }
 
   @GET
+  @Path("comments/id_user/{user_id}/limit/{limit}/offset/{offset}")
   @Produces(Array(MediaType.APPLICATION_JSON))
   @Operation(summary = "Return list of comments", description = "Return list of comments for user (using id of user). Example of url http://0.0.0.0:8009/comments/id_user/1/limit/5/offset/1",
     responses = Array(
