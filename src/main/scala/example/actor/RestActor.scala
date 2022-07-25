@@ -10,9 +10,10 @@ import example.dao.{DaoComment, DaoPost, DaoUser}
 import example.model.Formatter._
 import example.model.{Comment, Post, User}
 import example.swagger.SwaggerDocService
-import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.enums.ParameterIn
+import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.{GET, Path, Produces}
 import slick.jdbc.PostgresProfile.api._
@@ -21,7 +22,6 @@ import spray.json.enrichAny
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
-@Path("/")
 class RestActor(host: String, port: Int)(implicit val materializer: ActorMaterializer, db: Database, execContext: ExecutionContext) extends Actor with ActorLogging {
 
   implicit private val system = context.system
@@ -58,7 +58,10 @@ class RestActor(host: String, port: Int)(implicit val materializer: ActorMateria
   @GET
   @Path("users/limit/{limit}/offset/{offset}")
   @Produces(Array(MediaType.APPLICATION_JSON))
-  @Operation(summary = "Return list of users", description = "Return list of all users. Example of url http://0.0.0.0:8009/users/limit/5/offset/1",
+  @Operation(method = "GET", summary = "Return list of users", parameters = Array(
+    new Parameter(name = "limit", in = ParameterIn.PATH, required = true),
+    new Parameter(name = "offset", in = ParameterIn.PATH, required = true)
+  ), description = "Return list of all users. Example of url http://0.0.0.0:8009/users/limit/5/offset/1",
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Users response",
         content = Array(new Content(schema = new Schema(implementation = classOf[User])))),
@@ -85,7 +88,11 @@ class RestActor(host: String, port: Int)(implicit val materializer: ActorMateria
   @GET
   @Path("posts/id_user/{user_id}/limit/{limit}/offset/{offset}")
   @Produces(Array(MediaType.APPLICATION_JSON))
-  @Operation(summary = "Return list of posts", description = "Return list of posts for user (using id of user). Example of url http://0.0.0.0:8009/posts/id_user/1/limit/5/offset/1",
+  @Operation(method = "GET", summary = "Return list of posts", parameters = Array(
+    new Parameter(name = "user_id", in = ParameterIn.PATH, required = true),
+    new Parameter(name = "limit", in = ParameterIn.PATH, required = true),
+    new Parameter(name = "offset", in = ParameterIn.PATH, required = true)
+  ), description = "Return list of posts for user (using id of user). Example of url http://0.0.0.0:8009/posts/id_user/1/limit/5/offset/1",
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Posts response",
         content = Array(new Content(schema = new Schema(implementation = classOf[Post])))),
@@ -112,7 +119,11 @@ class RestActor(host: String, port: Int)(implicit val materializer: ActorMateria
   @GET
   @Path("comments/id_user/{user_id}/limit/{limit}/offset/{offset}")
   @Produces(Array(MediaType.APPLICATION_JSON))
-  @Operation(summary = "Return list of comments", description = "Return list of comments for user (using id of user). Example of url http://0.0.0.0:8009/comments/id_user/1/limit/5/offset/1",
+  @Operation(method = "GET", summary = "Return list of comments", parameters = Array(
+    new Parameter(name = "user_id", in = ParameterIn.PATH, required = true),
+    new Parameter(name = "limit", in = ParameterIn.PATH, required = true),
+    new Parameter(name = "offset", in = ParameterIn.PATH, required = true)
+  ), description = "Return list of comments for user (using id of user). Example of url http://0.0.0.0:8009/comments/id_user/1/limit/5/offset/1",
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Posts response",
         content = Array(new Content(schema = new Schema(implementation = classOf[Comment])))),
