@@ -1,3 +1,4 @@
+CREATE DATABASE testdb;
 
 CREATE TABLE users(
   id    SERIAL PRIMARY KEY,
