@@ -5,12 +5,16 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import example.actor.{DBManagerActor, KafkaActor, RestActor}
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
+
 import java.util.Properties
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
+import org.apache.kafka.common.serialization.StringSerializer
+import org.apache.kafka.common.serialization.StringDeserializer
 
 
 object MyMain extends App {
@@ -35,15 +39,15 @@ object MyMain extends App {
 
   implicit lazy val dbSlick: Database = Database.forConfig(path = "db.default", config = config)
 
-  val kafkaProps:Properties = new Properties()
+  val kafkaProps: Properties = new Properties()
 
   kafkaProps.put("bootstrap.servers", config.getString("kafka.server"))
   kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
   kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-  kafkaProps.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer") //ByteArrayDeserializer
+  kafkaProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
   kafkaProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
-  kafkaProps.put("group.id", "consumer_test_group_id")
-  kafkaProps.put("acks","all")
+  kafkaProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test")
+  kafkaProps.put("acks", "all")
 
   val kafkaTopic = config.getString("kafka.topic")
 
@@ -56,7 +60,7 @@ object MyMain extends App {
   sys.addShutdownHook({
     log.info("Finish")
     dbManager ! PoisonPill
-    
+
     dbSlick.shutdown
     system.terminate
   })

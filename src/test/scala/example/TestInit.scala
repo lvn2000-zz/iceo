@@ -4,6 +4,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import example.actor.ActorSystemTest
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import slick.jdbc.PostgresProfile.api._
 
 import java.util.Properties
@@ -31,7 +32,7 @@ trait TestInit {
   kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
   kafkaProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer") //ByteArrayDeserializer
   kafkaProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
-  kafkaProps.put("group.id", "consumer_test_group_id")
+  kafkaProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test")
   kafkaProps.put("acks", "all")
 
   val kafkaTopic = config.getString("kafka.topic")

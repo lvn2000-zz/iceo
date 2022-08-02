@@ -1,7 +1,7 @@
 package example
 
-import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.producer.{ProducerRecord, RecordMetadata}
 
 
 package object model {
@@ -39,7 +39,12 @@ package object model {
   //Kafka messages for actor
 
   sealed trait KafkaMessage extends Model
-  case class ProduceMessage(messages:Vector[ProducerRecord[String, String]]) extends KafkaMessage
+
+  case class ProduceMessageRequest(messages: Vector[ProducerRecord[String, String]]) extends KafkaMessage
+
+  case class ProduceMessageResponse(messages: Vector[RecordMetadata]) extends KafkaMessage
+
   case object ConsumeMessageRequest extends KafkaMessage
-  case class ConsumeMessageResponse(messages:Vector[ConsumerRecords[Nothing, Nothing]]) extends KafkaMessage
+
+  case class ConsumeMessageResponse(records: Vector[ConsumerRecord[Nothing, Nothing]]) extends KafkaMessage
 }

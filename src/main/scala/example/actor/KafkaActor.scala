@@ -3,8 +3,8 @@ package example.actor
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import akka.pattern.pipe
 import akka.util.Timeout
-import example.model.{ConsumeMessageRequest, ProduceMessage}
-import org.apache.kafka.clients.consumer.{ConsumerRecords, KafkaConsumer}
+import example.model.{ConsumeMessageRequest, ConsumeMessageResponse, ProduceMessageRequest, ProduceMessageResponse}
+import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 
 import java.util.Properties
@@ -32,8 +32,10 @@ class KafkaActor(props: Properties, topic: String) extends Actor with ActorLoggi
   }
 
   override def receive: Receive = {
-    case prod: ProduceMessage => sendMessageToTopic(prod.messages).getOrElse(Future.successful(Vector.empty[ConsumerRecords[Nothing, Nothing]])) pipeTo sender()
-    case ConsumeMessageRequest => getMessagesFromTopics.getOrElse(Future.successful(Vector.empty[ConsumerRecords[Nothing, Nothing]])) pipeTo sender()
+    case prod: ProduceMessageRequest => sendMessageToTopic(prod.messages).getOrElse(Future.successful(Vector.empty[RecordMetadata]))
+      .map(ProduceMessageResponse(_)) pipeTo sender()
+    case ConsumeMessageRequest => getMessagesFromTopics.getOrElse(Future.successful(Vector.empty[ConsumerRecord[Nothing, Nothing]]))
+      .map(ConsumeMessageResponse(_)) pipeTo sender()
     case _ =>
   }
 
@@ -60,7 +62,7 @@ class KafkaActor(props: Properties, topic: String) extends Actor with ActorLoggi
     }
   }
 
-  def getMessagesFromTopics: Try[Future[Vector[ConsumerRecords[Nothing, Nothing]]]] = {
+  def getMessagesFromTopics: Try[Future[Vector[ConsumerRecord[Nothing, Nothing]]]] = {
 
     Try {
       val records = consumer.poll(10)
@@ -72,7 +74,7 @@ class KafkaActor(props: Properties, topic: String) extends Actor with ActorLoggi
           ", Offset: " + record.offset() +
           ", Partition: " + record.partition())
       }
-      Future.successful(Vector(records))
+      Future.successful(records.asScala.toVector)
     }
   }
 
