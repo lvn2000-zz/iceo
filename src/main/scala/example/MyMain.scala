@@ -40,6 +40,9 @@ object MyMain extends App {
   kafkaProps.put("bootstrap.servers", config.getString("kafka.server"))
   kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
   kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+  kafkaProps.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer") //ByteArrayDeserializer
+  kafkaProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
+  kafkaProps.put("group.id", "consumer_test_group_id")
   kafkaProps.put("acks","all")
 
   val kafkaTopic = config.getString("kafka.topic")

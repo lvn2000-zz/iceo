@@ -26,28 +26,41 @@ class KafkaActor(props: Properties, topic: String) extends Actor with ActorLoggi
 
   consumer.subscribe(topics.asJava)
 
-  def sendMessageToTopic(record: ProducerRecord[String, String]): Try[Future[RecordMetadata]] = {
-
-    Try {
-
-      val metadata = producer.send(record)
-
-      log.info(s"sent record(key=%s value=%s) " +
-        "meta(partition=%d, offset=%d)\n",
-        record.key(), record.value(),
-        metadata.get().partition(),
-        metadata.get().offset())
-
-      scala.concurrent.Future {
-        blocking {
-          metadata.get()
-        }
-      }
-    }
-
+  override def postStop() = {
+    consumer.close()
+    producer.close()
   }
 
-  def getMessagesFroTopics: Try[Vector[ConsumerRecords[Nothing, Nothing]]] = {
+  override def receive: Receive = {
+    case prod: ProduceMessage => sendMessageToTopic(prod.messages).getOrElse(Future.successful(Vector.empty[ConsumerRecords[Nothing, Nothing]])) pipeTo sender()
+    case ConsumeMessageRequest => getMessagesFromTopics.getOrElse(Future.successful(Vector.empty[ConsumerRecords[Nothing, Nothing]])) pipeTo sender()
+    case _ =>
+  }
+
+  def sendMessageToTopic(records: Vector[ProducerRecord[String, String]]): Try[Future[Vector[RecordMetadata]]] = {
+
+    Try {
+      Future.sequence(
+        records.map(record => {
+          val metadata = producer.send(record)
+
+          log.info(s"sent record(key=%s value=%s) " +
+            "meta(partition=%d, offset=%d)\n",
+            record.key(), record.value(),
+            metadata.get().partition(),
+            metadata.get().offset())
+
+          scala.concurrent.Future {
+            blocking {
+              metadata.get()
+            }
+          }
+        }
+        ))
+    }
+  }
+
+  def getMessagesFromTopics: Try[Future[Vector[ConsumerRecords[Nothing, Nothing]]]] = {
 
     Try {
       val records = consumer.poll(10)
@@ -59,20 +72,10 @@ class KafkaActor(props: Properties, topic: String) extends Actor with ActorLoggi
           ", Offset: " + record.offset() +
           ", Partition: " + record.partition())
       }
-      Vector(records)
+      Future.successful(Vector(records))
     }
   }
 
-  override def postStop() = {
-    consumer.close()
-    producer.close()
-  }
-
-  override def receive: Receive = {
-    case prod: ProduceMessage => prod.messages.foreach(sendMessageToTopic)
-    case ConsumeMessageRequest => Future.successful(getMessagesFroTopics.getOrElse(Vector.empty[ConsumerRecords[Nothing, Nothing]])) pipeTo sender()
-    case _ =>
-  }
 }
 
 object KafkaActor {

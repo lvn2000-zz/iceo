@@ -5,6 +5,8 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import example.actor.ActorSystemTest
 import slick.jdbc.PostgresProfile.api._
+
+import java.util.Properties
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
@@ -21,5 +23,18 @@ trait TestInit {
   val testDB = "db.test"
   val config = ConfigFactory.parseResources("defaults.conf")
   implicit val dbSlick = Database.forConfig(path = testDB,  config = config)
+
+  val kafkaProps: Properties = new Properties()
+
+  kafkaProps.put("bootstrap.servers", config.getString("kafka.server"))
+  kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+  kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+  kafkaProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer") //ByteArrayDeserializer
+  kafkaProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
+  kafkaProps.put("group.id", "consumer_test_group_id")
+  kafkaProps.put("acks", "all")
+
+  val kafkaTopic = config.getString("kafka.topic")
+
 
 }
